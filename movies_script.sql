@@ -30,18 +30,17 @@
 --1991
 --3.  What is the highest grossing G-rated movie? Which company distributed it?
 
---SELECT  specs.film_title
-	,	revenue.worldwide_gross
-	,	distributors.company_name
+-- SELECT  specs.film_title
+-- 	,	revenue.worldwide_gross
+-- 	,	distributors.company_name
 	
---FROM specs
---INNER JOIN revenue
---ON specs.movie_id = revenue.movie_id
---INNER JOIN distributors
---ON specs.domestic_distributor_id = distributors.distributor_id
---WHERE mpaa_rating = 'G'
---GROUP BY specs.movie_id, specs.film_title, specs.mpaa_rating, revenue.worldwide_gross, distributors.distributor_id, distributors.company_name
---ORDER BY MAX(worldwide_gross) DESC;
+-- FROM specs
+-- INNER JOIN revenue
+-- ON specs.movie_id = revenue.movie_id
+-- INNER JOIN distributors
+-- ON specs.domestic_distributor_id = distributors.distributor_id
+-- WHERE mpaa_rating = 'G'
+-- ORDER BY worldwide_gross DESC;
 
 --Toy Story 4, Walt Disney
 
@@ -50,46 +49,79 @@
 --SELECT distributors.company_name
 --	,	COUNT (film_title) 
 --FROM distributors
---FULL JOIN specs
+--LEFT JOIN specs
 --ON distributors.distributor_id = specs.domestic_distributor_id
---GROUP BY distributors.company_name;
+--GROUP BY distributors.company_name
+--ORDER BY COUNT(film_title) DESC;
 
 --5.  Write a query that returns the five distributors with the highest average movie budget.
 
-SELECT distributors.company_name
-	,	AVG (revenue.film_budget) AS avg_film_budget
-FROM distributors
-LEFT JOIN specs
-ON distributors.distributor_id = specs.domestic_distributor_id
-LEFT JOIN revenue
-ON specs.movie_id = revenue.movie_id
-WHERE film_budget IS NOT NULL
-GROUP BY distributors.company_name, film_budget
-ORDER BY avg_film_budget DESC
-LIMIT 5;
+-- SELECT DISTINCT (distributors.company_name)
+-- 	,	AVG (revenue.film_budget) AS avg_film_budget
+-- FROM distributors
+-- LEFT JOIN specs
+-- ON distributors.distributor_id = specs.domestic_distributor_id
+-- LEFT JOIN revenue
+-- ON specs.movie_id = revenue.movie_id
+-- WHERE film_budget IS NOT NULL
+-- ORDER BY avg_film_budget DESC
+-- LIMIT 5;
 
 --6.  How many movies in the dataset are distributed by a company which is not headquartered in California? Which of these movies has the highest imdb rating?
 
-SELECT distributors.company_name
-	,	distributors.headquarters
-	,	distributors.distributor_id
-	,	distributors.headquarters
-	,	specs.movie_id
-	,	specs.film_title
-	,	rating.movie_id
-	,	MAX(rating.imdb_rating)
-FROM distributors
-FULL JOIN specs
-ON distributors.distributor_id = specs.movie_id
-FULL JOIN rating
-ON distributors.distributor_id = rating.movie_id
-WHERE distributors.headquarters NOT LIKE '%CA'
-ORDER BY MAX(rating.imdb_rating) DESC;
+-- SELECT distributors.company_name
+-- 	,	distributors.headquarters
+-- 	,	specs.film_title
+-- 	,	rating.imdb_rating
+-- FROM distributors
+-- JOIN specs
+-- ON distributors.distributor_id = specs.domestic_distributor_id
+-- JOIN rating
+-- ON specs.movie_id = rating.movie_id
+-- WHERE distributors.headquarters NOT LIKE ', %CA%'
+-- ORDER BY rating.imdb_rating DESC;
 
-__7. Which have a higher average rating, movies which are over two hours long or movies which are under two hours? 
+--Dirty Dancing
+
+--7. Which have a higher average rating, movies which are over two hours long or movies which are under two hours? 
+
+-- SELECT  specs.film_title
+-- 	,	specs.length_in_min 
+-- 	,	AVG(rating.imdb_rating) AS avg_imdb_rating
+-- FROM specs
+-- INNER JOIN rating
+-- USING (movie_id)
+-- WHERE specs.length_in_min > 120
+-- OR specs.length_in_min < 120
+-- GROUP BY specs.film_title, specs.length_in_min
+-- ORDER BY AVG(rating.imdb_rating) DESC;
+
+-- SELECT
+--     CASE
+--         WHEN specs.length_in_min > 120 THEN 'Over 2 Hours'
+--         WHEN specs.length_in_min <= 120 THEN '2 Hours or Less' -- This includes movies exactly 120 mins. 
+--     END AS film_length_category, -- This creates a new column called film_length_category that assigns each movie to one of your desired categories based on its length 
+--     AVG(rating.imdb_rating) AS average_rating
+-- FROM
+--     specs
+-- JOIN
+--     rating ON specs.movie_id = rating.movie_id
+-- GROUP BY
+--     film_length_category -- Grouping all movies belonging to 'Over 2 Hours' into one group and '2 Hours or Less' into another, allowing AVG() to calculate the average for each category.
+-- ORDER BY 1 DESC;
 
 
-
-
-
+--7. Which have a higher average rating, movies which are over two hours long or movies which are under two hours?
+-- SELECT 'movies < 2 hours' AS movie_time, AVG(imdb_rating)
+-- FROM specs
+-- JOIN rating
+-- 	USING(movie_id)
+-- WHERE  length_in_min <120
+-- --UNION
+-- SELECT 'movies > 2 hours' AS movie_time ,AVG(imdb_rating)
+-- FROM specs
+-- JOIN rating
+-- 	USING(movie_id)
+-- WHERE  length_in_min >120
+-- --GROUP BY film_title
 
